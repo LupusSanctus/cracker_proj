@@ -15,10 +15,6 @@ public class GetTable {
     private final String fromClause;
 
     public GetTable(String name, String fromClause, String... idColumns) {
-            Assert.notNull(name);
-            Assert.notNull(idColumns);
-            Assert.isTrue(idColumns.length > 0, "At least one primary key column must be provided");
-
             this.name = name;
             this.idColumns = Collections.unmodifiableList(Arrays.asList(idColumns));
             if (StringUtils.hasText(fromClause)) {
