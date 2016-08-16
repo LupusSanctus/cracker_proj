@@ -3,7 +3,7 @@ package crm.tariffs.postgres;
 
 import crm.tariffs.dao.UsrDao;
 import crm.tariffs.dao.OfferDao;
-//import crm.tariffs.dao.UserOfferDao;
+import crm.tariffs.dao.UserOfferDao;
 //import crm.tariffs.dao.ParamsDao;
 
 import crm.tariffs.sql.SqlCommon;
@@ -34,10 +34,10 @@ public class PostgresqlConfig {
         return new OfferDao("offer");
     }
     
-//     @Bean
-//     public UserOfferDao userOfferDao() {
-//         return new UserOfferDao("user_offer");
-//     }
+    @Bean
+    public UserOfferDao userOfferDao() {
+        return new UserOfferDao("user_offer");
+    }
     
 //     @Bean
 //     public ParamsDao paramsDao() {

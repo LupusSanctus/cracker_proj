@@ -40,22 +40,13 @@ public class UserOffer implements Persistable<Object[]> {
         return offerId;
     }   
    
-/*    public void setUsrId(int usrId) {
+    public void setUsrId(int usrId) {
         this.usrId = usrId;
     }   
     
     public void setOfferId(int offerId) {
         this.offerId = offerId;
-    }  */   
-    
-    //an attempt to show reference on tables
-    public void setUsrId(Usr existedUsr) {
-        this.usrId = existedUsr.getUsrId();
     }   
-    
-    public void setOfferId(Offer existedOffer) {
-        this.offerId = existedOffer.getOfferId();
-    }      
  
     public UserOffer withPersisted(boolean persisted) {
         this.persisted = persisted;

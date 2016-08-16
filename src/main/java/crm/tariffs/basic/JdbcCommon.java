@@ -35,14 +35,18 @@ public abstract class JdbcCommon <T extends Persistable<ID>, ID extends Serializ
     private JdbcOperations jdbcOperations;
 
     public JdbcCommon(RowMapper<T> rowMapper, MapUpdate<T> mapUpdate, SqlCommon sqlCommon, GetTable table) {           
-            this.mapUpdate = mapUpdate;
-            this.rowMapper = rowMapper;
-            this.sqlCommon = sqlCommon;
-            this.table = table;
+        this.mapUpdate = mapUpdate;
+        this.rowMapper = rowMapper;
+        this.sqlCommon = sqlCommon;
+        this.table = table;
     }
             
     public JdbcCommon(RowMapper<T> rowMapper, MapUpdate<T> mapUpdate, String tableName, String idColumn) {
-            this(rowMapper, mapUpdate, null, new GetTable(tableName, idColumn));
+        this(rowMapper, mapUpdate, null, new GetTable(tableName, idColumn));
+    }
+
+    public JdbcCommon(RowMapper<T> rowMapper,  MapUpdate<T> mapUpdate, GetTable table) {
+            this(rowMapper, mapUpdate, null, table);
     }
 
     // for appropriate beans lifecycle
@@ -215,11 +219,11 @@ public abstract class JdbcCommon <T extends Persistable<ID>, ID extends Serializ
     }
 
     protected <P extends T> P afterUpdate(P obj) {
-            return obj;
+        return obj;
     }             
 
     protected <P extends T> P afterCreate(P obj) {
-            return obj;
+        return obj;
     }
     
     // cast

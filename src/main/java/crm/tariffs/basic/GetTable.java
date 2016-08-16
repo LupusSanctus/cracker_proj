@@ -18,24 +18,25 @@ public class GetTable {
             this.name = name;
             this.idColumns = Collections.unmodifiableList(Arrays.asList(idColumns));
             if (StringUtils.hasText(fromClause)) {
-                    this.fromClause = fromClause;
+                this.fromClause = fromClause;
             } else {
-                    this.fromClause = name;
+                this.fromClause = name;
             }
     }
 
     public GetTable(String name, String idColumn) {
             this(name, null, idColumn);
     }
+    
     public String getName() {
-            return name;
+        return name;
     }
 
     public List<String> getIdColumns() {
-            return idColumns;
+        return idColumns;
     }
 
     public String getFromClause() {
-            return fromClause;
+        return fromClause;
     }
 }
