@@ -1,6 +1,6 @@
 package crm.tariffs.sql; 
 
-import crm.tariffs.basic.GetTable; 
+import crm.tariffs.basic.TableMapper; 
 import java.util.*;
 
 
@@ -24,15 +24,15 @@ public class SqlCommon {
         this("*");
     }
 
-    public String count(GetTable table) {
+    public String count(TableMapper table) {
         return SELECT + "COUNT(*) " + FROM + table.getFromClause();
     }
 
-    public String deleteWhereId(GetTable table) {
+    public String deleteWhereId(TableMapper table) {
         return DELETE + FROM + table.getName() + whereId(table);
     }
 
-    private String whereId(GetTable table) {
+    private String whereId(TableMapper table) {
         final StringBuilder whereClause = new StringBuilder(WHERE);
         for (Iterator<String> idColIterator = table.getIdColumns().iterator(); idColIterator.hasNext(); ) {
             whereClause.append(idColIterator.next()).append(PARAM);
@@ -43,27 +43,27 @@ public class SqlCommon {
         return whereClause.toString();
     }
 
-    public String selectAll(GetTable table) {
+    public String selectAll(TableMapper table) {
         return SELECT + clauses + " " + FROM + table.getFromClause();
     }
 
 
-    public String selectById(GetTable table) {
+    public String selectById(TableMapper table) {
         return selectAll(table) + whereId(table);
     }
 
-    public String selectByIds(GetTable table, int ids) {
+    public String selectByIds(TableMapper table, int ids) {
         switch (ids) {
             case 0:
                 return selectAll(table);
             case 1:
                 return selectById(table);
             default:
-                return selectAll(table);// + whereByIdsClause(table, ids);
+                return selectAll(table);
         }
     }
 
-    public String update(GetTable table, Map<String, Object> columns) {
+    public String update(TableMapper table, Map<String, Object> columns) {
         final StringBuilder updateQuery = new StringBuilder("UPDATE " + table.getName() + " SET ");
         for(Iterator<Map.Entry<String,Object>> iterator = columns.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry<String, Object> column = iterator.next();
@@ -76,13 +76,13 @@ public class SqlCommon {
         return updateQuery.toString();
     }
     
-    public String create(GetTable table, Map<String, Object> columns) {
-            final StringBuilder formQuery = new StringBuilder("INSERT INTO " + table.getName() + " (");
-            mergeColTitles(formQuery, columns.keySet());
-            formQuery.append(")").append(" VALUES (");
-            //System.out.println("COLUMNS SIZE = " + columns.size());
-            formQuery.append(repeat("?", COMMA, columns.size()));
-            return formQuery.append(")").toString();
+    public String create(TableMapper table, Map<String, Object> columns) {
+        final StringBuilder formQuery = new StringBuilder("INSERT INTO " + table.getName() + " (");
+        mergeColTitles(formQuery, columns.keySet());
+        formQuery.append(")").append(" VALUES (");
+        //System.out.println("COLUMNS SIZE = " + columns.size());
+        formQuery.append(repeat("?", COMMA, columns.size()));
+        return formQuery.append(")").toString();
     }
 
     private void mergeColTitles(StringBuilder formQuery, Set<String> columnNames) {
@@ -95,12 +95,12 @@ public class SqlCommon {
         }
     }
 
-    public String deleteAll(GetTable table) {
-            return DELETE + FROM + table.getName();
+    public String deleteAll(TableMapper table) {
+        return DELETE + FROM + table.getName();
     }
 
-    public String countById(GetTable table) {
-            return count(table) + whereId(table);
+    public String countById(TableMapper table) {
+        return count(table) + whereId(table);
     }
     
     private static String repeat(String str, String delim, int count) {
