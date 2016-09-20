@@ -3,7 +3,8 @@ package crm.tariffs.sql;
 import crm.tariffs.basic.TableMapper; 
 import java.util.*;
 
-
+//TODO: utils 
+//TODO: pattern builder
 public class SqlCommon {
 
     public static final String WHERE = " WHERE ";
@@ -20,6 +21,8 @@ public class SqlCommon {
         this.clauses = clauses;
     }
 
+    // alternative constructor for making clauses = *
+    // SELECT + clauses + FROM ... => SELECT * FROM ...
     public SqlCommon() {
         this("*");
     }
@@ -31,15 +34,18 @@ public class SqlCommon {
     public String deleteWhereId(TableMapper table) {
         return DELETE + FROM + table.getName() + whereId(table);
     }
-
-    private String whereId(TableMapper table) {
+    
+    // TODO: change name
+    public String whereId(TableMapper table) {
         final StringBuilder whereClause = new StringBuilder(WHERE);
+        // table.getIdColumns() => WHERE table.getIdColumns() = ?
         for (Iterator<String> idColIterator = table.getIdColumns().iterator(); idColIterator.hasNext(); ) {
             whereClause.append(idColIterator.next()).append(PARAM);
             if (idColIterator.hasNext()) {
                 whereClause.append(AND);
             }
         }
+        System.out.println("Where clause: " + whereClause.toString());
         return whereClause.toString();
     }
 
@@ -47,7 +53,7 @@ public class SqlCommon {
         return SELECT + clauses + " " + FROM + table.getFromClause();
     }
 
-
+    
     public String selectById(TableMapper table) {
         return selectAll(table) + whereId(table);
     }

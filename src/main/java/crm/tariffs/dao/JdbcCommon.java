@@ -33,9 +33,8 @@ public abstract class JdbcCommon<T extends Persistable<ID>, ID extends Serializa
 
     private final RowMapper<T> rowMapper;
     private final UpdatePreparator<T> mapUpdate;
-    private final TableMapper table;
-
-    private SqlCommon sqlCommon = new SqlCommon();
+    protected final TableMapper table;
+    protected SqlCommon sqlCommon = new SqlCommon();
     private BeanFactory beanFactory;
 
     //JdbcOperations implemented by JdbcTemplate
@@ -48,13 +47,15 @@ public abstract class JdbcCommon<T extends Persistable<ID>, ID extends Serializa
      * @param sqlCommon
      * @param table
      */
+
     public JdbcCommon(RowMapper<T> rowMapper, UpdatePreparator<T> mapUpdate, SqlCommon sqlCommon, TableMapper table) {
-        this.mapUpdate = mapUpdate;
         this.rowMapper = rowMapper;
+        this.mapUpdate = mapUpdate;
         this.sqlCommon = sqlCommon;
         this.table = table;
     }
 
+    //super(usrMapper, usrUpdatePreparator, tableName, "usr_id");
     public JdbcCommon(RowMapper<T> rowMapper, UpdatePreparator<T> mapUpdate, String tableName, String idColumn) {
         this(rowMapper, mapUpdate, null, new TableMapper(tableName, idColumn));
     }
@@ -81,6 +82,7 @@ public abstract class JdbcCommon<T extends Persistable<ID>, ID extends Serializa
     }
 
     private static <ID> Object[] idToObjectArray(ID id) {
+
         if (id instanceof Object[])
             return (Object[]) id;
         else
@@ -88,6 +90,7 @@ public abstract class JdbcCommon<T extends Persistable<ID>, ID extends Serializa
     }
 
     private static <ID> List<Object> idToObjectList(ID id) {
+
         if (id instanceof Object[])
             return Arrays.asList((Object[]) id);
         else
@@ -178,6 +181,7 @@ public abstract class JdbcCommon<T extends Persistable<ID>, ID extends Serializa
 
     @Override
     public T findOne(ID id) {
+        System.out.println("Cannot be converted!");
         final Object[] idColumns = idToObjectArray(id);
         final List<T> objOrEmpty = jdbcOperations.query(sqlCommon.selectById(table), idColumns, rowMapper);
         return objOrEmpty.isEmpty() ? null : objOrEmpty.get(0);
@@ -231,9 +235,6 @@ public abstract class JdbcCommon<T extends Persistable<ID>, ID extends Serializa
     protected <P extends T> P create(P obj) {
         final Map<String, Object> columns = getColumns(obj);
         final String createQuery = sqlCommon.create(table, columns);
-
-        //TODO delete rubbish
-        //MapUtils.debugPrint(System.out, "Columns in CREATE: ", columns);
         final Object[] queryParams = columns.values().toArray();
         jdbcOperations.update(createQuery, queryParams);
         return afterCreate(obj);

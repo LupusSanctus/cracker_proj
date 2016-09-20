@@ -4,17 +4,23 @@ package crm.tariffs.domain;
 import org.springframework.data.domain.Persistable;
 
 
-// integer - ID
 public class Usr implements Persistable<Integer> {
 
     private Integer usrId;
     private String usrName;
     private transient boolean persisted;
     
+    //login part
+    private String usrname;
+    private String passwd;
+    public boolean valid;
+    
     public Usr(Integer usrId, String usrName) {
         this.usrId = usrId;
         this.usrName = usrName;  
     }
+    
+    public Usr() {}
     
     @Override
     public Integer getId() {

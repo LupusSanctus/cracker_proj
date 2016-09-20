@@ -27,7 +27,7 @@ public class TableMapper {
     }
 
     public TableMapper(String name, String idColumn) {
-            this(name, null, idColumn);
+        this(name, null, idColumn);
     }
     
     public String getName() {

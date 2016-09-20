@@ -42,7 +42,7 @@ public class JdbcCommonTest {
 
     private final int dbPort;
     
-    // number of records in tables before changes, it`s supposed to be constant because of @Transactional
+    //number of records in tables before changes, it`s supposed to be constant because of @Transactional
     private final int numberOfUsrRecords = 7;
     private final int numberOfOfferRecords = 6;
     
@@ -82,215 +82,262 @@ public class JdbcCommonTest {
     private Offer offer(int testOfferId) {
         return new Offer(testOfferId, testOfferName);
     }    
-
-    //----- Usr CRUD
+// 
+//     @Test
+//     public void formWhereClause() {
+//         offerDao.sqlCommon.whereId(offerDao.table);        
+//     }
+//     
+//     @Test
+//     public void findAllOffers() {
+//         List<Offer> list = offerDao.findAll();
+//         for(Offer offer : list) {
+//             System.out.println("Offer ID: " + offer.getOfferId());
+//             System.out.println("Offer Name: " + offer.getOfferName());
+//         }     
+//     }
+//     
+// select user_offer.offer_id, offer.offer_name, offer_attributes.attr_name, offer_attributes.description, params.attr_value from user_offer, offer, params, offer_attributes where user_offer.usr_id = 2 and
+// user_offer.offer_id = offer.offer_id and
+// params.offer_id = user_offer.offer_id and
+// params.attr_id = offer_attributes.attr_id;
+// 
+//     @Test
+//     public void testPrint() {
+//         Usr user = new Usr();
+//         String userName = "Smith";
+//         String searchQuery = "select * from usr where usr_name='" + userName + "'"; //"' AND password='" + password + "'"; 
+// 
+//         System.out.println("Your user name i!!!!s " + userName);
+//         System.out.println("Your password is " + password);
+//         System.out.println("Query: " + searchQuery); 
+// 
+//         List<Map<String, Object>> list = jdbc.queryForList(searchQuery);
+//         if(list != null && !list.isEmpty()) {
+//             for (Map<String, Object> map : list) {
+//                 for (Map.Entry<String, Object> entry : map.entrySet()) {
+//                     //key is column name (usr_id, usr_name)
+//                     if(entry.getKey().equals("usr_name")) {
+//                         user.setUsrName((String) entry.getValue());
+//                         System.out.println("HELLO!!! " + user.getUsrName());
+//                     } else {
+//                         user.setUsrId((Integer) entry.getValue());
+//                         System.out.println("HELLO2!!! " + user.getUsrId());
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// 
+//     //----- Usr CRUD
     @Test
     public void returnOneUsrRecordById() {
-        jdbc.update("INSERT INTO USR VALUES (?, ?)", 9, "TestLN9");
-        Usr usr = usrDao.findOne(9);
-        assertThat(usr.getUsrId()).isEqualTo(9);
-        assertThat(usr.getUsrName()).isEqualTo("TestLN9");
+        //jdbc.update("INSERT INTO USR VALUES (?, ?)", 9, "TestLN9");
+        Usr usr = usrDao.findOne(1);
+//         assertThat(usr.getUsrId()).isEqualTo(9);
+//         assertThat(usr.getUsrName()).isEqualTo("TestLN9");
     }
-    
-    @Test
-    public void returnNullWhenNotExistedUsr() throws Exception {
-            Usr usr = usrDao.findOne(35);
-            assertThat(usr).isNull();
-    }        
-    
-    @Test
-    public void createNewUsrRecord() {
-        Usr usrRecord = usr(8);
-        usrDao.save(usrRecord);
-        
-        System.out.println("Created user record is: " + usrRecord.getUsrId() + ", " + usrRecord.getUsrName());
-        Usr createdUsrRecord = usrDao.findOne(8);
-        assertThat(createdUsrRecord.getUsrId()).isEqualTo(8);
-        assertThat(createdUsrRecord.getUsrName()).isEqualTo("TestLN");
-    }
-    
-    @Test
-    public void updateCreatedUsrRecord() throws Exception {
-        Usr testLN = usrDao.save(usr(8));
-        testLN.setUsrName("TestLNew");
-        usrDao.save(testLN);
-        
-        System.out.println("Updated user record is: " + testLN.getUsrId() + ", " + testLN.getUsrName());
-        Usr updated = usrDao.findOne(8);
-        assertThat(updated.getUsrId()).isEqualTo(8);
-        assertThat(updated.getUsrName()).isEqualTo("TestLNew");
-    }
-    
-    @Test
-    public void deleteUsrById() throws Exception {
-        int deleteId = 10;
-        jdbc.update("INSERT INTO USR VALUES (?, ?)", deleteId, "TestLN10");
-        usrDao.delete(deleteId);
-        assertThat(jdbc.queryForObject("SELECT COUNT(usr_id) FROM USR WHERE usr_id = ?", Integer.class, deleteId)).isZero();
-    }
-    
-    @Test
-    public void deleteUsrByObject() throws Exception {       
-        int deleteId = 11;
-        Usr usr = usrDao.save(usr(deleteId));
-        usrDao.delete(usr);
-        assertThat(jdbc.queryForObject("SELECT COUNT(usr_id) FROM USR WHERE usr_id = ?", Integer.class, deleteId)).isZero();
-    }
-
-    @Test
-    public void saveMultipleUsrRecords() throws Exception {
-        Usr usr11 = usr(11);
-        Usr usr12 = usr(12);
-        usrDao.save(Arrays.asList(usr11, usr12));
-        assertThat(jdbc.queryForList("SELECT usr_id FROM USR ORDER BY usr_id", Integer.class)).containsExactly(1, 2, 3, 4, 5, 6, 7, 11, 12);
-    }
-
-    @Test
-    public void deleteMultipleUsrRecords() throws Exception {
-        Usr usr11 = usr(11);
-        Usr usr12 = usr(12);
-        usrDao.save(Arrays.asList(usr11, usr12));
-        usrDao.delete(Arrays.asList(usr11, usr12));
-        assertThat(jdbc.queryForObject("SELECT COUNT(usr_id) FROM USR", Integer.class)).isEqualTo(numberOfUsrRecords);
-    }   
-    
-    // assume that table wasn`t changed (@Transactional)
-    @Test
-    public void returnNumberOfUsrRecords() throws Exception {
-        final long count = usrDao.count();       
-        assertThat(count).isEqualTo(numberOfUsrRecords);
-    } 
-    
-    //----- Offer CRUD
-    @Test
-    public void returnOneOfferRecordById() {
-        jdbc.update("INSERT INTO OFFER VALUES (?, ?)", 8, "TestOffer8");
-        Offer offer = offerDao.findOne(8);
-        assertThat(offer.getOfferId()).isEqualTo(8);
-        assertThat(offer.getOfferName()).isEqualTo("TestOffer8");
-    }     
-    
-    @Test
-    public void returnNullWhenNotExistedOffer() throws Exception {
-            Offer offer = offerDao.findOne(45);
-            assertThat(offer).isNull();
-    }    
-    
-    @Test
-    public void createNewOfferRecord() {
-        Offer offerRecord = offer(7);
-        offerDao.save(offerRecord);
-        
-        Offer createdOfferRecord = offerDao.findOne(7);
-        System.out.println("Created offer record is: " + offerRecord.getOfferId() + ", " + offerRecord.getOfferName());
-        assertThat(createdOfferRecord.getOfferId()).isEqualTo(7);
-        assertThat(createdOfferRecord.getOfferName()).isEqualTo("TestOffer");        
-    }          
-    
-    @Test
-    public void updateCreatedOfferRecord() throws Exception {
-        Offer offerRecord = offerDao.save(offer(7));
-        offerRecord.setOfferName("TestOfferNew");
-        offerDao.save(offerRecord);
-        
-        System.out.println("Updated offer record is: " + offerRecord.getOfferId() + ", " + offerRecord.getOfferName());
-        Offer updated = offerDao.findOne(7);
-        assertThat(updated.getOfferId()).isEqualTo(7);
-        assertThat(updated.getOfferName()).isEqualTo("TestOfferNew");
-    }
-    
-    @Test
-    public void deleteOfferById() throws Exception {
-        int deleteId = 8;
-        jdbc.update("INSERT INTO OFFER VALUES (?, ?)", deleteId, "TestOffer8");
-        offerDao.delete(deleteId);
-        assertThat(jdbc.queryForObject("SELECT COUNT(offer_id) FROM OFFER WHERE offer_id = ?", Integer.class, deleteId)).isZero();
-    }    
-        
-    @Test
-    public void deleteOfferByObject() throws Exception {       
-        int deleteId = 11;
-        Offer offer = offerDao.save(offer(deleteId));
-        offerDao.delete(offer);
-        assertThat(jdbc.queryForObject("SELECT COUNT(offer_id) FROM OFFER WHERE offer_id = ?", Integer.class, deleteId)).isZero();
-    }
-    
-    @Test
-    public void saveMultipleOfferRecords() throws Exception {
-        Offer offer11 = offer(11);
-        Offer offer12 = offer(12);
-        offerDao.save(Arrays.asList(offer11, offer12));
-        assertThat(jdbc.queryForList("SELECT offer_id FROM OFFER ORDER BY offer_id", Integer.class)).containsExactly(1, 2, 3, 4, 5, 6, 11, 12);
-    }
-
-    @Test
-    public void deleteMultipleOfferRecords() throws Exception {
-        Offer offer11 = offer(11);
-        Offer offer12 = offer(12);
-        offerDao.save(Arrays.asList(offer11, offer12));
-        offerDao.delete(Arrays.asList(offer11, offer12));
-        assertThat(jdbc.queryForObject("SELECT COUNT(offer_id) FROM OFFER", Integer.class)).isEqualTo(numberOfOfferRecords);
-    }      
-    
-    // assume that table wasn`t changed (@Transactional)
-    @Test
-    public void returnNumberOfOfferRecords() throws Exception {
-        final long count = offerDao.count();       
-        assertThat(count).isEqualTo(numberOfOfferRecords);
-    }
-    
-    //----- UserOffer CRUD
-    @Test
-    public void createUserOfferRecord() throws Exception {
-        UserOffer record = new UserOffer(2, 2);
-        userOfferDao.save(record);
-        UserOffer found = userOfferDao.findOne(compositePrimKey(2, 2));
-        assertThat(found.getId()).isEqualTo(record.getId());
-    }
-       
-    @Test
-    public void deleteUserOfferByCompositeKey() throws Exception {
-        userOfferDao.save(new UserOffer(2, 4));
-        userOfferDao.delete(compositePrimKey(2, 4));
-        assertThat(userOfferDao.exists(compositePrimKey(2, 4))).isFalse();
-    }
-   
-    @Test
-    public void deleteUserOfferByObject() throws Exception {
-        UserOffer record = userOfferDao.save(new UserOffer(2, 5));
-        userOfferDao.delete(record);
-        assertThat(userOfferDao.exists(compositePrimKey(2, 5))).isFalse();
-    }
-    
-    //----- Params CRUD
-    @Test
-    public void createParamsRecord() throws Exception {
-        Params record = new Params(1, 4, "TestVal");
-        paramsDao.save(record);
-        Params found = paramsDao.findOne(compositePrimKey(1, 4));
-        assertThat(found.getId()).isEqualTo(record.getId());
-    }    
-    
-    @Test
-    public void updateParamsByCompositeKey() throws Exception {
-        Params record = paramsDao.save(new Params(2, 4, "TestVal24"));
-        record.setAttrValue("TestVal24Update");
-        paramsDao.save(record);
-        Params foundUpdated = paramsDao.findOne(compositePrimKey(2, 4));
-        assertThat(foundUpdated.getId()).isEqualTo(record.getId());
-    }
-      
-    @Test
-    public void deleteParamsByCompositeKey() throws Exception {
-        paramsDao.save(new Params(2, 4, "TestVal24"));
-        paramsDao.delete(compositePrimKey(2, 4));
-        assertThat(userOfferDao.exists(compositePrimKey(2, 4))).isFalse();
-    }
-   
-    @Test
-    public void deleteParamsByObject() throws Exception {
-        Params record = paramsDao.save(new Params(1, 4, "TestVal14"));
-        paramsDao.delete(record);
-        assertThat(paramsDao.exists(compositePrimKey(1, 4))).isFalse();
-    }          
+//     
+//     
+//     @Test
+//     public void returnNullWhenNotExistedUsr() throws Exception {
+//             Usr usr = usrDao.findOne(35);
+//             assertThat(usr).isNull();
+//     }        
+//     
+//     @Test
+//     public void createNewUsrRecord() {
+//         Usr usrRecord = usr(8);
+//         usrDao.save(usrRecord);
+//         
+//         System.out.println("Created user record is: " + usrRecord.getUsrId() + ", " + usrRecord.getUsrName());
+//         Usr createdUsrRecord = usrDao.findOne(8);
+//         assertThat(createdUsrRecord.getUsrId()).isEqualTo(8);
+//         assertThat(createdUsrRecord.getUsrName()).isEqualTo("TestLN");
+//     }
+//     
+//     @Test
+//     public void updateCreatedUsrRecord() throws Exception {
+//         Usr testLN = usrDao.save(usr(8));
+//         testLN.setUsrName("TestLNew");
+//         usrDao.save(testLN);
+//         
+//         System.out.println("Updated user record is: " + testLN.getUsrId() + ", " + testLN.getUsrName());
+//         Usr updated = usrDao.findOne(8);
+//         assertThat(updated.getUsrId()).isEqualTo(8);
+//         assertThat(updated.getUsrName()).isEqualTo("TestLNew");
+//     }
+//     
+//     @Test
+//     public void deleteUsrById() throws Exception {
+//         int deleteId = 10;
+//         jdbc.update("INSERT INTO USR VALUES (?, ?)", deleteId, "TestLN10");
+//         usrDao.delete(deleteId);
+//         assertThat(jdbc.queryForObject("SELECT COUNT(usr_id) FROM USR WHERE usr_id = ?", Integer.class, deleteId)).isZero();
+//     }
+//     
+//     @Test
+//     public void deleteUsrByObject() throws Exception {       
+//         int deleteId = 11;
+//         Usr usr = usrDao.save(usr(deleteId));
+//         usrDao.delete(usr);
+//         assertThat(jdbc.queryForObject("SELECT COUNT(usr_id) FROM USR WHERE usr_id = ?", Integer.class, deleteId)).isZero();
+//     }
+// 
+//     @Test
+//     public void saveMultipleUsrRecords() throws Exception {
+//         Usr usr11 = usr(11);
+//         Usr usr12 = usr(12);
+//         usrDao.save(Arrays.asList(usr11, usr12));
+//         assertThat(jdbc.queryForList("SELECT usr_id FROM USR ORDER BY usr_id", Integer.class)).containsExactly(1, 2, 3, 4, 5, 6, 7, 11, 12);
+//     }
+// 
+//     @Test
+//     public void deleteMultipleUsrRecords() throws Exception {
+//         Usr usr11 = usr(11);
+//         Usr usr12 = usr(12);
+//         usrDao.save(Arrays.asList(usr11, usr12));
+//         usrDao.delete(Arrays.asList(usr11, usr12));
+//         assertThat(jdbc.queryForObject("SELECT COUNT(usr_id) FROM USR", Integer.class)).isEqualTo(numberOfUsrRecords);
+//     }   
+//     
+//     // assume that table wasn`t changed (@Transactional)
+//     @Test
+//     public void returnNumberOfUsrRecords() throws Exception {
+//         final long count = usrDao.count();       
+//         assertThat(count).isEqualTo(numberOfUsrRecords);
+//     } 
+//     
+//     //----- Offer CRUD
+//     @Test
+//     public void returnOneOfferRecordById() {
+//         jdbc.update("INSERT INTO OFFER VALUES (?, ?)", 8, "TestOffer8");
+//         Offer offer = offerDao.findOne(8);
+//         assertThat(offer.getOfferId()).isEqualTo(8);
+//         assertThat(offer.getOfferName()).isEqualTo("TestOffer8");
+//     }     
+//     
+//     @Test
+//     public void returnNullWhenNotExistedOffer() throws Exception {
+//             Offer offer = offerDao.findOne(45);
+//             assertThat(offer).isNull();
+//     }    
+//     
+//     @Test
+//     public void createNewOfferRecord() {
+//         Offer offerRecord = offer(7);
+//         offerDao.save(offerRecord);
+//         
+//         Offer createdOfferRecord = offerDao.findOne(7);
+//         System.out.println("Created offer record is: " + offerRecord.getOfferId() + ", " + offerRecord.getOfferName());
+//         assertThat(createdOfferRecord.getOfferId()).isEqualTo(7);
+//         assertThat(createdOfferRecord.getOfferName()).isEqualTo("TestOffer");        
+//     }          
+//     
+//     @Test
+//     public void updateCreatedOfferRecord() throws Exception {
+//         Offer offerRecord = offerDao.save(offer(7));
+//         offerRecord.setOfferName("TestOfferNew");
+//         offerDao.save(offerRecord);
+//         
+//         System.out.println("Updated offer record is: " + offerRecord.getOfferId() + ", " + offerRecord.getOfferName());
+//         Offer updated = offerDao.findOne(7);
+//         assertThat(updated.getOfferId()).isEqualTo(7);
+//         assertThat(updated.getOfferName()).isEqualTo("TestOfferNew");
+//     }
+//     
+//     @Test
+//     public void deleteOfferById() throws Exception {
+//         int deleteId = 8;
+//         jdbc.update("INSERT INTO OFFER VALUES (?, ?)", deleteId, "TestOffer8");
+//         offerDao.delete(deleteId);
+//         assertThat(jdbc.queryForObject("SELECT COUNT(offer_id) FROM OFFER WHERE offer_id = ?", Integer.class, deleteId)).isZero();
+//     }    
+//         
+//     @Test
+//     public void deleteOfferByObject() throws Exception {       
+//         int deleteId = 11;
+//         Offer offer = offerDao.save(offer(deleteId));
+//         offerDao.delete(offer);
+//         assertThat(jdbc.queryForObject("SELECT COUNT(offer_id) FROM OFFER WHERE offer_id = ?", Integer.class, deleteId)).isZero();
+//     }
+//     
+//     @Test
+//     public void saveMultipleOfferRecords() throws Exception {
+//         Offer offer11 = offer(11);
+//         Offer offer12 = offer(12);
+//         offerDao.save(Arrays.asList(offer11, offer12));
+//         assertThat(jdbc.queryForList("SELECT offer_id FROM OFFER ORDER BY offer_id", Integer.class)).containsExactly(1, 2, 3, 4, 5, 6, 11, 12);
+//     }
+// 
+//     @Test
+//     public void deleteMultipleOfferRecords() throws Exception {
+//         Offer offer11 = offer(11);
+//         Offer offer12 = offer(12);
+//         offerDao.save(Arrays.asList(offer11, offer12));
+//         offerDao.delete(Arrays.asList(offer11, offer12));
+//         assertThat(jdbc.queryForObject("SELECT COUNT(offer_id) FROM OFFER", Integer.class)).isEqualTo(numberOfOfferRecords);
+//     }      
+//     
+//     // assume that table wasn`t changed (@Transactional)
+//     @Test
+//     public void returnNumberOfOfferRecords() throws Exception {
+//         final long count = offerDao.count();       
+//         assertThat(count).isEqualTo(numberOfOfferRecords);
+//     }
+//     
+//     //----- UserOffer CRUD
+//     @Test
+//     public void createUserOfferRecord() throws Exception {
+//         UserOffer record = new UserOffer(2, 2);
+//         userOfferDao.save(record);
+//         UserOffer found = userOfferDao.findOne(compositePrimKey(2, 2));
+//         assertThat(found.getId()).isEqualTo(record.getId());
+//     }
+//        
+//     @Test
+//     public void deleteUserOfferByCompositeKey() throws Exception {
+//         userOfferDao.save(new UserOffer(2, 4));
+//         userOfferDao.delete(compositePrimKey(2, 4));
+//         assertThat(userOfferDao.exists(compositePrimKey(2, 4))).isFalse();
+//     }
+//    
+//     @Test
+//     public void deleteUserOfferByObject() throws Exception {
+//         UserOffer record = userOfferDao.save(new UserOffer(2, 5));
+//         userOfferDao.delete(record);
+//         assertThat(userOfferDao.exists(compositePrimKey(2, 5))).isFalse();
+//     }
+//     
+//     //----- Params CRUD
+//     @Test
+//     public void createParamsRecord() throws Exception {
+//         Params record = new Params(1, 4, "TestVal");
+//         paramsDao.save(record);
+//         Params found = paramsDao.findOne(compositePrimKey(1, 4));
+//         assertThat(found.getId()).isEqualTo(record.getId());
+//     }    
+//     
+//     @Test
+//     public void updateParamsByCompositeKey() throws Exception {
+//         Params record = paramsDao.save(new Params(2, 4, "TestVal24"));
+//         record.setAttrValue("TestVal24Update");
+//         paramsDao.save(record);
+//         Params foundUpdated = paramsDao.findOne(compositePrimKey(2, 4));
+//         assertThat(foundUpdated.getId()).isEqualTo(record.getId());
+//     }
+//       
+//     @Test
+//     public void deleteParamsByCompositeKey() throws Exception {
+//         paramsDao.save(new Params(2, 4, "TestVal24"));
+//         paramsDao.delete(compositePrimKey(2, 4));
+//         assertThat(userOfferDao.exists(compositePrimKey(2, 4))).isFalse();
+//     }
+//    
+//     @Test
+//     public void deleteParamsByObject() throws Exception {
+//         Params record = paramsDao.save(new Params(1, 4, "TestVal14"));
+//         paramsDao.delete(record);
+//         assertThat(paramsDao.exists(compositePrimKey(1, 4))).isFalse();
+//     }          
 } 
